@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class File extends Model
+class Roll extends Model
 {
     use HasApiTokens, HasFactory, Notifiable;
+    protected $table='lists';
+    public $timestamps=true;
 
     /**
      * The attributes that are mass assignable.
@@ -18,6 +20,6 @@ class File extends Model
      */
     protected $fillable = [
         'name',
+        'user_id',
     ];
-
 }
