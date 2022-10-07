@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ListController;
+use App\Http\Controllers\TaskController;
 use App\Models\Roll;
 
 /*
@@ -34,4 +35,10 @@ Route::controller(ListController::class)->group(function (){
     Route::delete("/delete-list/{id}",'destroy')->name('destroy.list');
     Route::get("/edit-list/{id}",'edit');
     Route::patch('/update-list/{id}','update');
+});
+
+Route::controller(TaskController::class)->group(function (){
+    Route::get("/add-task/{id}",'create')->name('add.task');
+    Route::post("add-task/{id}",'store')->name('task.store');
+    Route::get("/show-task/{id}",'index')->name('add.task');
 });

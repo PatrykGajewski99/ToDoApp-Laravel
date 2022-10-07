@@ -12,7 +12,7 @@
                     <table class="table">
                         <thead>
                         <tr>
-                            <th scope="col">List Name</th>
+                            <th scope="col">Category Name</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -23,7 +23,7 @@
                                     {{$list->list_name}}
                                 </td>
                                 <td>
-                                    <a  style="background: #1c7430;padding: 5px 20px;border-radius: 25px;margin-right: 10px;margin-left: 150px">Add exercise</a>
+                                    <a href="{{url('add-task/'.$list->id)}}" style="background: #1c7430;padding: 5px 20px;border-radius: 25px;margin-right: 10px;margin-left: 150px">Add task</a>
                                 </td>
                                 <td>
                                     <form action="{{url('delete-list/'.$list->id)}}" method="POST">
@@ -36,7 +36,7 @@
                                     <a href="{{url('edit-list/'.$list->id)}}" style="background: yellowgreen;padding:  5px 20px;border-radius: 25px;margin-right: 10px">EDIT</a>
                                 </td>
                                 <td>
-                                    <a  style="background: dodgerblue;padding: 5px 20px;border-radius: 25px;margin-right: 10px">Show exercises</a>
+                                    <a href="{{url('show-task/'.$list->id)}}" style="background: dodgerblue;padding: 5px 20px;border-radius: 25px;margin-right: 10px">Show tasks</a>
                                 </td>
 
 
