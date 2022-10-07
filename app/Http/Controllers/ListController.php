@@ -2,39 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ListFormRequest;
 use App\Models\Roll;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Mockery\Exception;
+use Illuminate\Support\Facades\DB;
 
 class ListController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
-     */
+
     public function index()
     {
         return view('dashboard');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
-     */
+
     public function create()
     {
         return view('addList');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     */
+
     public function store(Request $request)
     {
         $request->validate([
@@ -52,48 +41,41 @@ class ListController extends Controller
 
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function show(Request $request)
     {
-        //
+       $userID=auth()->user()->id;
+
+       $lists=DB::table('lists')->where('user_id',$userID)->get();
+
+       return view('dashboard',['lists' => $lists]);
+
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function edit($id)
     {
-        //
+        $list=Roll::find($id);
+        return view('editList',compact('list'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
-        //
+        try {
+            $request->validate([
+                'list_name' => 'required|string|min:3|max:60|unique:lists'
+            ]);
+            $newListName=$request->list_name;
+            Roll::find($id)->update(['list_name' => $newListName]);
+            return back()->with('success','List name changed successfully');
+
+        }catch(Exception $e) {
+
+            return back()->with($e->getMessage());
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
-        //
+        Roll::find($id)->delete();
+        return back()->with('success','List deleted successfully');
     }
 }

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ListController;
+use App\Models\Roll;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,14 +19,19 @@ Route::get('/', function () {
     return view('welcome');
 })->name("welcome");
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 require __DIR__.'/auth.php';
 
 Route::get('/addList', function () {
     return view('addList');
-})->name("lists.create");
+})->middleware(['auth', 'verified'])->name("lists.create");
 
-Route::post("addList",[ListController::class,'store'])->name('lists.store');
+
+Route::controller(ListController::class)->group(function (){
+
+    Route::get("/dashboard",'show')->middleware(['auth', 'verified'])->name('dashboard');
+    Route::post("addList",'store')->name('lists.store');
+    Route::delete("/delete-list/{id}",'destroy')->name('destroy.list');
+    Route::get("/edit-list/{id}",'edit');
+    Route::patch('/update-list/{id}','update');
+});

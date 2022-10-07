@@ -19,7 +19,7 @@ class Roll extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'list_name',
         'user_id',
     ];
 }
