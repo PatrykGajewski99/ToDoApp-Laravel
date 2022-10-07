@@ -40,5 +40,8 @@ Route::controller(ListController::class)->group(function (){
 Route::controller(TaskController::class)->group(function (){
     Route::get("/add-task/{id}",'create')->name('add.task');
     Route::post("add-task/{id}",'store')->name('task.store');
-    Route::get("/show-task/{id}",'index')->name('add.task');
+    Route::get("/show-task/{id}",'show')->name('add.task');
+    Route::delete("/delete-task/{id}",'destroy')->name('destroy.task');
+    Route::get("/edit-task/{id}",'edit');
+    Route::patch('/update-task/{id}','update');
 });

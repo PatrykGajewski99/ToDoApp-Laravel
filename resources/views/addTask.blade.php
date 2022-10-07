@@ -22,6 +22,11 @@
                 </div>
             </form>
             @include('message')
+            <form method="GET" action="{{route('dashboard')}}">
+                <x-primary-button class="ml-4">
+                    {{ __('BACK') }}
+                </x-primary-button>
+            </form>
         </x-auth-card>
     </x-guest-layout>
 

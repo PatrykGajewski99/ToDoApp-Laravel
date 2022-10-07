@@ -2,22 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Roll;
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Mockery\Exception;
 
 class TaskController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     *  @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function index($id)
-    {
-        $listID=$id;
-        return view('showTasks',compact('listID'));
-    }
 
     /**
      * Show the form for creating a new resource.
@@ -62,7 +54,12 @@ class TaskController extends Controller
      */
     public function show($id)
     {
-        //
+        $userID=auth()->user()->id;
+        $listID=$id;
+
+        $tasks=DB::table('tasks')->where([['user_id',$userID],['list_id',$listID]])->get();
+
+        return view('showTasks',['tasks' => $tasks]);
     }
 
     /**
@@ -73,7 +70,8 @@ class TaskController extends Controller
      */
     public function edit($id)
     {
-        //
+        $task=Task::find($id);
+        return view('editTask',compact('task'));
     }
 
     /**
@@ -85,7 +83,18 @@ class TaskController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        try {
+            $request->validate([
+                'task_name' => 'required|string|min:3|max:256'
+            ]);
+            $data=$request->all();
+            Task::find($id)->update($data);
+            return back()->with('success','Task changed successfully');
+
+        }catch(Exception $e) {
+
+            return back()->with($e->getMessage());
+        }
     }
 
     /**
@@ -96,6 +105,7 @@ class TaskController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Task::find($id)->delete();
+        return back()->with('success','Task deleted successfully');
     }
 }
