@@ -6,6 +6,7 @@ use App\Http\Requests\ListFormRequest;
 use App\Mail\AddListEmail;
 use App\Mail\DeleteListEmail;
 use App\Models\Roll;
+use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
@@ -131,8 +132,10 @@ class ListController extends Controller
     public function destroy($id)
     {
         try {
-            $listName = DB::table('lists')->where('id', $id)->value('list_name');;
+            $listName = DB::table('lists')->where('id', $id)->value('list_name');
+
             Roll::find($id)->delete();
+            Task::where('list_id',$id)->delete();
 
             $mailData = [
                 'title' => 'List deleted',
