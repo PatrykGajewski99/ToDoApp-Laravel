@@ -137,22 +137,15 @@ class TaskController extends Controller
             $data = $request->all();
             $task_name = $request->input('task_name');
             $userID = auth()->user()->id;
-            if($this->checkTaskName($task_name,$userID ))
-            {
-                $userEmail = DB::table('users')->where('id', $userID)->value('email');
-                Task::find($id)->update($data);
-                $mailData = [
-                    'title' => 'Updated task',
-                    'body' => 'Task ' . $task_name . ' updated successfully'
-                ];
-                Mail::to($userEmail)->send(new UpdateTaskEmail($mailData));
-                return back()->with('success', 'Task changed successfully');
-            }
-            else
-            {
-                return back()->with('error', 'Task not edited successfully. Name is not unique');
-            }
 
+            $userEmail = DB::table('users')->where('id', $userID)->value('email');
+            Task::find($id)->update($data);
+            $mailData = [
+                'title' => 'Updated task',
+                'body' => 'Task ' . $task_name . ' updated successfully'
+                ];
+            Mail::to($userEmail)->send(new UpdateTaskEmail($mailData));
+            return back()->with('success', 'Task changed successfully');
 
         } catch (\Exception $e) {
 

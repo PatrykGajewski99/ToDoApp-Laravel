@@ -20,7 +20,7 @@
                 <div>
                     <x-input-label for="status" :value="__('Status')" />
 
-                    <select name="status" id="status" value="$task->status">
+                    <select name="status" id="status">
                         <option value="to-do">to-do</option>
                         <option value="in-progress">in-progress</option>
                         <option value="done">done</option>
@@ -33,7 +33,7 @@
                 </div>
             </form>
             @include('message')
-            <form method="GET" action="{{ URL::previous() }}">
+            <form method="GET" action="{{route( 'dashboard') }}">
                 <x-primary-button class="ml-4">
                     {{ __('BACK') }}
                 </x-primary-button>
