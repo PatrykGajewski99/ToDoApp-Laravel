@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ListController;
 use App\Http\Controllers\TaskController;
 use App\Models\Roll;
-
+use App\Http\Controllers\WelcomePageController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,10 +16,13 @@ use App\Models\Roll;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-})->name("welcome");
 
+Route::controller(WelcomePageController::class)->group(function(){
+
+    Route::get('/','show')->name('welcome');
+});
+
+Route::get('/showTasks/{id}','App\Http\Controllers\WelcomePageController@showTask');
 
 require __DIR__.'/auth.php';
 
@@ -28,16 +31,16 @@ Route::get('/addList', function () {
 })->middleware(['auth', 'verified'])->name("lists.create");
 
 
-Route::controller(ListController::class)->group(function (){
+Route::controller(ListController::class)->middleware(['auth', 'verified'])->group(function (){
 
-    Route::get("/dashboard",'show')->middleware(['auth', 'verified'])->name('dashboard');
+    Route::get("/dashboard",'show')->name('dashboard');
     Route::post("addList",'store')->name('lists.store');
     Route::delete("/delete-list/{id}",'destroy')->name('destroy.list');
     Route::get("/edit-list/{id}",'edit');
     Route::patch('/update-list/{id}','update');
 });
 
-Route::controller(TaskController::class)->group(function (){
+Route::controller(TaskController::class)->middleware(['auth', 'verified'])->group(function (){
     Route::get("/add-task/{id}",'create')->name('add.task');
     Route::post("add-task/{id}",'store')->name('task.store');
     Route::get("/show-task/{id}",'show')->name('add.task');
