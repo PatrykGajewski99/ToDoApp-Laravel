@@ -33,7 +33,7 @@
                 </div>
             </form>
             @include('message')
-            <form method="GET" action="{{url('show-task/'.$task->user_id)}}">
+            <form method="GET" action="{{ URL::previous() }}">
                 <x-primary-button class="ml-4">
                     {{ __('BACK') }}
                 </x-primary-button>

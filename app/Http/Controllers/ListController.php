@@ -15,6 +15,18 @@ use Illuminate\Support\Facades\DB;
 class ListController extends Controller
 {
 
+    private function checkListName(string $listName,int $userID) : bool
+    {
+        $userListsName=DB::table('lists')->where('user_id',$userID)->get('list_name');
+        foreach ($userListsName as $userListName)
+        {
+            $name=$userListName->list_name;
+            if($name === $listName)
+                return false;
+        }
+        return true;
+    }
+
     public function index()
     {
         return view('dashboard');
@@ -32,26 +44,32 @@ class ListController extends Controller
         try {
 
             $request->validate([
-                'list_name' => 'required|string|min:3|max:60|unique:lists'
+                'list_name' => 'required|string|min:3|max:60'
             ]);
             $userEmail = auth()->user()->email;
             $list = new Roll;
 
             $list->user_id = auth()->user()->id;
             $list->list_name = $request->list_name;
+            if($this->checkListName($list->list_name,$list->user_id))
+            {
+                $list->save();
+                $mailData = [
+                    'title' => 'List added',
+                    'body' => 'List ' . $list->list_name . ' added successfully'
+                ];
+                Mail::to($userEmail)->send(new AddListEmail($mailData));
 
-            $list->save();
-            $mailData = [
-                'title' => 'List added',
-                'body' => 'List ' . $list->list_name . ' added successfully'
-            ];
-            Mail::to($userEmail)->send(new AddListEmail($mailData));
-
-            return back()->with('success', 'List added successfully');
+                return back()->with('success', 'List added successfully');
+            }
+            else
+            {
+                return back()->with('error', 'List not added successfully. Name is not unique');
+            }
 
         } catch (\Exception $e) {
 
-            return back()->with($e->getMessage());
+            return back()->with('error', 'Something was wrong');
         }
 
 
@@ -68,7 +86,7 @@ class ListController extends Controller
 
         } catch (\Exception $e) {
 
-            return back()->with($e->getMessage());
+            return back()->with('error', 'Something was wrong');
         }
 
     }
@@ -82,7 +100,7 @@ class ListController extends Controller
 
         } catch (\Exception $e) {
 
-            return back()->with($e->getMessage());
+            return back()->with('error', 'Something was wrong');
         }
     }
 
@@ -90,15 +108,23 @@ class ListController extends Controller
     {
         try {
             $request->validate([
-                'list_name' => 'required|string|min:3|max:60|unique:lists'
+                'list_name' => 'required|string|min:3|max:60'
             ]);
             $newListName = $request->list_name;
-            Roll::find($id)->update(['list_name' => $newListName]);
-            return back()->with('success', 'List name changed successfully');
+            if($this->checkListName($newListName,auth()->user()->id))
+            {
+                Roll::find($id)->update(['list_name' => $newListName]);
+                return back()->with('success', 'List name changed successfully');
+            }
+            else
+            {
+                return back()->with('error', 'List not edited successfully. Name is not unique');
+            }
+
 
         } catch (\Exception $e) {
 
-            return back()->with($e->getMessage());
+            return back()->with('error', 'Something was wrong');
         }
     }
 
@@ -118,7 +144,7 @@ class ListController extends Controller
 
         } catch (\Exception $e) {
 
-            return back()->with($e->getMessage());
+            return back()->with('error', 'Something was wrong');
         }
 
     }

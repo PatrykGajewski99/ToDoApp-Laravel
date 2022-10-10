@@ -15,7 +15,17 @@ use Mockery\Exception;
 
 class TaskController extends Controller
 {
-
+    private function checkTaskName(string $taskName,int $userID) : bool
+    {
+        $userTasksName=DB::table('tasks')->where('user_id',$userID)->get('task_name');
+        foreach ($userTasksName as $userTaskName)
+        {
+            $name=$userTaskName->task_name;
+            if($name === $taskName)
+                return false;
+        }
+        return true;
+    }
     /**
      * Show the form for creating a new resource.
      *
@@ -46,18 +56,25 @@ class TaskController extends Controller
             $task->list_id = $id;
             $task->task_name = $request->task_name;
             $task->status = "to-do";
+            if($this->checkTaskName($task->task_name,auth()->user()->id))
+            {
+                $task->save();
 
-            $task->save();
+                $mailData = [
+                    'title' => 'Task added',
+                    'body' => 'Task ' . $task->task_name . ' added successfully'
+                ];
+                Mail::to(auth()->user()->email)->send(new AddTaskEmail($mailData));
 
-            $mailData = [
-                'title' => 'Task added',
-                'body' => 'Task ' . $task->task_name . ' added successfully'
-            ];
-            Mail::to(auth()->user()->email)->send(new AddTaskEmail($mailData));
+                return back()->with('success', 'Task added successfully');
+            }
+            else
+            {
+                return back()->with('error', 'Task not added successfully. Name is not unique');
+            }
 
-            return back()->with('success', 'Task added successfully');
         } catch (\Exception $e) {
-            return back()->with($e->getMessage());
+            return back()->with('error', 'Something was wrong');
         }
     }
 
@@ -80,7 +97,7 @@ class TaskController extends Controller
 
         } catch (\Exception $e) {
 
-            return back()->with($e->getMessage());
+            return back()->with('error', 'Something was wrong');
         }
     }
 
@@ -99,7 +116,7 @@ class TaskController extends Controller
 
         } catch (\Exception $e) {
 
-            return back()->with($e->getMessage());
+            return back()->with('error', 'Something was wrong');
         }
     }
 
@@ -119,19 +136,27 @@ class TaskController extends Controller
             ]);
             $data = $request->all();
             $task_name = $request->input('task_name');
-            $userID = DB::table('tasks')->value('user_id');
-            $userEmail = DB::table('users')->where('id', $userID)->value('email');
-            Task::find($id)->update($data);
-            $mailData = [
-                'title' => 'Updated task',
-                'body' => 'Task ' . $task_name . ' updated successfully'
-            ];
-            Mail::to($userEmail)->send(new UpdateTaskEmail($mailData));
-            return back()->with('success', 'Task changed successfully');
+            $userID = auth()->user()->id;
+            if($this->checkTaskName($task_name,$userID ))
+            {
+                $userEmail = DB::table('users')->where('id', $userID)->value('email');
+                Task::find($id)->update($data);
+                $mailData = [
+                    'title' => 'Updated task',
+                    'body' => 'Task ' . $task_name . ' updated successfully'
+                ];
+                Mail::to($userEmail)->send(new UpdateTaskEmail($mailData));
+                return back()->with('success', 'Task changed successfully');
+            }
+            else
+            {
+                return back()->with('error', 'Task not edited successfully. Name is not unique');
+            }
+
 
         } catch (\Exception $e) {
 
-            return back()->with($e->getMessage());
+            return back()->with('error', 'Something was wrong');
         }
     }
 
@@ -159,7 +184,7 @@ class TaskController extends Controller
 
         } catch (\Exception $e) {
 
-            return back()->with($e->getMessage());
+            return back()->with('error', 'Something was wrong');
         }
 
     }
